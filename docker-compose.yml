@@ -1,6 +1,19 @@
 version: "3.7"
 
 services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: sonai
+    ports:
+      - "3306:3306"
+    networks:
+      - s-network
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+    
   app:
     build: .
     ports:
@@ -9,18 +22,14 @@ services:
       - s-network
     depends_on:
       - mysql
-    restart: on-failure
-    
-  mysql:
-    image: mysql:latest
+    restart: on-failure:5
     environment:
-      MYSQL_USER: root
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: sonai
-    ports:
-      - "3306:3306"
-    networks:
-      - s-network
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/sonai?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=1234
+
+volumes:
+  mysql-data:
     
 networks:
   s-network:
